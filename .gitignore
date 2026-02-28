@@ -1,0 +1,14 @@
+# Python / venv
+.venv/
+__pycache__/
+*.pyc
+
+# Model artifacts
+ppo_hvac_model.zip
+
+# Data outputs (keep sample only)
+data/trajectories.csv
+
+# OS junk
+.DS_Store
+Thumbs.db
