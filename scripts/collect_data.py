@@ -6,7 +6,6 @@ from src.envs.hvac_env import HVACEnv
 def main():
     env = HVACEnv(seed=123)
 
-    # Load trained model if you saved one
     try:
         model = PPO.load("ppo_hvac_model", env=env)
     except:
