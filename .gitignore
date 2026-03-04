@@ -12,3 +12,6 @@ data/trajectories.csv
 # OS junk
 .DS_Store
 Thumbs.db
+
+# training logs
+logs/

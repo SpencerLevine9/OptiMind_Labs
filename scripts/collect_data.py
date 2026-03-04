@@ -1,4 +1,5 @@
 import csv
+import os
 from stable_baselines3 import PPO
 from src.envs.hvac_env import HVACEnv
 
@@ -13,14 +14,19 @@ def main():
         model = PPO("MlpPolicy", env, verbose=0)
         model.learn(total_timesteps=20000)
 
+    os.makedirs("data", exist_ok=True)
+
     steps_to_collect = 10000
     output_file = "data/trajectories.csv"
 
     obs, _ = env.reset()
+    episode_id = 0
+    t_in_episode = 0
 
     with open(output_file, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([
+            "episode_id", "t",
             "s_indoor", "s_outdoor", "s_tod", "s_occ", "s_price",
             "action", "reward",
             "s2_indoor", "s2_outdoor", "s2_tod", "s2_occ", "s2_price",
@@ -29,10 +35,11 @@ def main():
 
         for _ in range(steps_to_collect):
             action, _ = model.predict(obs, deterministic=True)
-            next_obs, reward, terminated, truncated, _ = env.step(int(action))
+            next_obs, reward, terminated, truncated, info = env.step(int(action))
             done = terminated or truncated
 
             writer.writerow([
+                episode_id, t_in_episode,
                 obs[0], obs[1], obs[2], obs[3], obs[4],
                 int(action), float(reward),
                 next_obs[0], next_obs[1], next_obs[2], next_obs[3], next_obs[4],
@@ -40,8 +47,12 @@ def main():
             ])
 
             obs = next_obs
+            t_in_episode += 1
+
             if done:
                 obs, _ = env.reset()
+                episode_id += 1
+                t_in_episode = 0
 
     print(f"Wrote {steps_to_collect} steps to {output_file}")
 
