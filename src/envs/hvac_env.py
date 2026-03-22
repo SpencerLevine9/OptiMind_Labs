@@ -95,10 +95,12 @@ class HVACEnv(gym.Env):
         elif indoor_next > self.comfort_high:
             comfort_penalty = indoor_next - self.comfort_high
 
-        # Slightly softer scaling (feel free to tune this weight)
         reward = -(energy_cost + 1.0 * comfort_penalty)
 
-        # Terminate if we go way out of bounds (optional)
+        # Added only because task #5 needs comfort violation rate
+        comfort_violation = 1 if comfort_penalty > 0.0 else 0
+
+        # Terminate if we go way out of bounds 
         terminated = bool(indoor_next < self.safety_low or indoor_next > self.safety_high)
         truncated = self.step_count >= self.max_steps
 
@@ -107,5 +109,6 @@ class HVACEnv(gym.Env):
             "energy_cost": float(energy_cost),
             "comfort_penalty": float(comfort_penalty),
             "indoor_next": float(indoor_next),
+            "comfort_violation": int(comfort_violation),
         }
         return next_state, float(reward), terminated, truncated, info
